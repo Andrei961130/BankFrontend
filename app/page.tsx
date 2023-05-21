@@ -75,16 +75,18 @@ async function Home() {
 
   return (
     <>
-      {operationTypes !== null && operationTypes.length > 0 ? (
-        operationTypes?.map((operationType, index) => (
-          <MyButton key={index} >
-            {operationType.name}
-          </MyButton>
-        ))
+      <div className="center">
+        {operationTypes !== null && operationTypes.length > 0 ? (
+          operationTypes?.map((operationType, index) => (
+            <MyButton key={index} >
+              {operationType.name}
+            </MyButton>
+          ))
 
-      ) : (
-        <p>No trade operation types to display</p>
-      )}
+        ) : (
+          <p>No trade operation types to display</p>
+        )}
+      </div>
 
       <table>
         <thead>
