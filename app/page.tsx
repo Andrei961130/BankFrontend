@@ -1,95 +1,116 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import MyButton from "@/components/MyOperationTypeButton";
 
-export default function Home() {
+
+interface TradeOrder {
+  amount: number;
+  tradeOrderType: string;
+}
+
+interface OperationType {
+  name: string;
+}
+
+interface Deposit {
+  amount: number;
+  fromAddress: string;
+}
+
+
+const fetchOperationTypes = async (): Promise<OperationType[] | null> => {
+  try {
+    const API_URL = `${process.env.API_URL}OperationType`;
+
+    const response = await fetch(API_URL);
+
+    return await response.json();
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+};
+
+const fetchHeaders = async (className: string): Promise<string[] | null> => {
+  try {
+    const API_URL = `${process.env.API_URL}Dictionary/headers?`;
+
+    const response = await fetch(API_URL + new URLSearchParams({
+      className: className
+    }))
+
+    return await response.json();
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+};
+
+const fetchDeposits = async (): Promise<Deposit[] | null> => {
+  try {
+    const API_URL = `${process.env.API_URL}Deposit`;
+
+    const response = await fetch(API_URL);
+
+    return await response.json();
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+};
+
+async function Home() {
+
+  const operationTypes = await fetchOperationTypes();
+
+  let headers: string[] | null = null;
+
+  if (operationTypes) {
+    headers = await fetchHeaders(operationTypes[0].name);
+  }
+
+  let tableData = await fetchDeposits();
+
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <>
+      {operationTypes !== null && operationTypes.length > 0 ? (
+        operationTypes?.map((operationType, index) => (
+          <MyButton key={index} >
+            {operationType.name}
+          </MyButton>
+        ))
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      ) : (
+        <p>No trade operation types to display</p>
+      )}
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+      <table>
+        <thead>
+          {headers !== null && headers.length > 0 ? (
+            headers?.map(header => (
+              <td> {header} </td>
+            ))
+          ) : (
+            <td>No table headers to display</td>
+          )}
+        </thead>
+        <tbody>
+          {tableData !== null && tableData.length > 0 ? (
+            tableData?.map(item => (
+              <tr>
+                <td> {item.amount} </td>
+                <td> {item.fromAddress} </td>
+              </tr>
+            ))
+          ) : (
+            <tr>No table data to display</tr>
+          )}
+        </tbody>
+      </table>
+    </>
   )
 }
+
+export default Home

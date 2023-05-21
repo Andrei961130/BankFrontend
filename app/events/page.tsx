@@ -5,7 +5,7 @@ interface TradeOrder {
 
 const fetchData = async (): Promise<TradeOrder[] | null> => {
   try {
-    const API_URL = "http://localhost:5222/api/TradeOrder";
+    const API_URL = `${process.env.API_URL}TradeOrder`;
     const response = await fetch(API_URL);
     return await response.json();
   } catch (error) {
